@@ -26,10 +26,16 @@ export interface SolarEnergySettings {
 export interface WeatherData {
   isMock: boolean;
   temperature: number; // °C
-  cloudCover: number;
-  irradiance: number;
-  humidity: number;
-  efficiency: number;
-  weather: string;
+  cloudCover: number; // %
+  irradiance: number; // 0 - 1000
+  humidity: number; // %
+  efficiency: number; // %
+  weather: string; // e.g. "Sunny" | "Cloudy" | ...
   weatherIcon: string;
+}
+
+export interface MonthlyData {
+  month: string;
+  production: number;
+  expenditure: number;
 }

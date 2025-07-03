@@ -9,35 +9,38 @@ import { TrendingDownIcon, TrendingUpIcon } from "lucide-react";
 
 type MoneySavedCardProps = {
   moneySavedThisMonth: number;
-  moneySavedLastMonth: number;
+  moneySavedPreviousMonth: number;
 };
 
 export function MoneySavedCard({
   moneySavedThisMonth,
-  moneySavedLastMonth,
+  moneySavedPreviousMonth,
 }: MoneySavedCardProps) {
   const calculatePercentageChange = () => {
-    if (moneySavedLastMonth === 0) {
+    if (moneySavedPreviousMonth === 0) {
       // Handle edge case where last month was 0
       return moneySavedThisMonth > 0 ? 100 : 0;
     }
 
     const change =
-      ((moneySavedThisMonth - moneySavedLastMonth) /
-        Math.abs(moneySavedLastMonth)) *
+      ((moneySavedThisMonth - moneySavedPreviousMonth) /
+        Math.abs(moneySavedPreviousMonth)) *
       100;
     return Math.abs(change);
   };
 
   const percentageChange = calculatePercentageChange();
-  const isIncreasing = moneySavedThisMonth >= moneySavedLastMonth;
+  const isIncreasing = moneySavedThisMonth >= moneySavedPreviousMonth;
 
   return (
     <Card>
       <CardHeader className="relative">
         <CardDescription>Money saved this month</CardDescription>
         <CardTitle className="text-3xl font-semibold tabular-nums">
-          {new Intl.NumberFormat("de-CH").format(moneySavedThisMonth)} CHF
+          {new Intl.NumberFormat("de-CH").format(
+            Math.round(moneySavedThisMonth)
+          )}{" "}
+          CHF
         </CardTitle>
       </CardHeader>
 

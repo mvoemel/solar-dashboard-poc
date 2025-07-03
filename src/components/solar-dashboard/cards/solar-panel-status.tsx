@@ -58,7 +58,10 @@ export function SolarPanelCardStatus({
         <CardFooter className="flex items-center gap-2 text-sm">
           <CalendarClockIcon className="size-5" />
           <p className="text-muted-foreground">
-            Next maintenance: {nextMaintenance.toLocaleDateString()}
+            Next maintenance:{" "}
+            <span className="text-primary">
+              {nextMaintenance.toDateString()}
+            </span>
           </p>
         </CardFooter>
       </Card>

@@ -18,13 +18,13 @@ export function CO2EmissionsCard({ co2Avoided }: CO2EmissionsCardProps) {
       <CardHeader className="relative">
         <CardDescription>CO₂ Emissions Avoided all time</CardDescription>
         <CardTitle className="text-3xl font-semibold tabular-nums">
-          {co2Avoided} kg
+          {new Intl.NumberFormat("de-CH").format(Math.round(co2Avoided))} kg
         </CardTitle>
       </CardHeader>
 
       <CardFooter className="flex items-center gap-2 text-sm">
         <p className="text-muted-foreground">
-          🌍 Equivalent to {Math.floor(co2Avoided / KG_PER_TREE)} trees
+          🌍 Equivalent to {Math.round(co2Avoided / KG_PER_TREE)} trees
         </p>
       </CardFooter>
     </Card>

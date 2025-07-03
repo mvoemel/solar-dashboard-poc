@@ -19,7 +19,7 @@ export function EnergyIndependenceCard({
       <CardHeader className="relative">
         <CardDescription>Energy independence</CardDescription>
         <CardTitle className="text-3xl font-semibold tabular-nums">
-          {energyIndependence}%
+          {Math.round(energyIndependence)}%
         </CardTitle>
         <div className="text-muted-foreground">
           of energy needs met by solar.
