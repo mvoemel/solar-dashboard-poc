@@ -36,7 +36,7 @@ export function NetEnergyBalanceCard({
               "text-red-500": netBalance < 0,
             })}
           >
-            {netBalance} kW
+            {netBalance} kW/h
           </span>
         </div>
         <p className="text-muted-foreground text-sm">
@@ -52,7 +52,7 @@ export function NetEnergyBalanceCard({
               <span className="text-red-500 text-2xl">
                 -{" "}
                 {new Intl.NumberFormat("de-CH").format(Math.round(expenditure))}{" "}
-                kW
+                kW/h
               </span>
             }
           />
@@ -62,7 +62,7 @@ export function NetEnergyBalanceCard({
               <span className="text-green-500 text-2xl">
                 +{" "}
                 {new Intl.NumberFormat("de-CH").format(Math.round(production))}{" "}
-                kW
+                kW/h
               </span>
             }
           />
