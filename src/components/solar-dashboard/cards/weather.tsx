@@ -6,7 +6,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { ThermometerIcon } from "lucide-react";
+import { SunIcon, ThermometerIcon } from "lucide-react";
 import { SimpleCard } from "./simple-card";
 import Image from "next/image";
 import clsx from "clsx";
@@ -30,13 +30,17 @@ export function WeatherCard({ weather, className }: WeatherCardProps) {
           <SimpleCard
             title={weather.weather}
             content={
-              <Image
-                src={`https://openweathermap.org/img/wn/${weather.weatherIcon}@2x.png`}
-                alt={weather.weather}
-                width={100}
-                height={100}
-                className="size-8 rounded-lg bg-muted-foreground"
-              />
+              weather.isMock ? (
+                <SunIcon className="size-8 text-orange-500" />
+              ) : (
+                <Image
+                  src={`https://openweathermap.org/img/wn/${weather.weatherIcon}@2x.png`}
+                  alt={weather.weather}
+                  width={100}
+                  height={100}
+                  className="size-8 rounded-lg bg-muted-foreground"
+                />
+              )
             }
           />
           <SimpleCard

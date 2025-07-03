@@ -1,5 +1,5 @@
 import { parseSolarEnergyData } from "./parse";
-import { SolarEnergyDataItem, SolarEnergySettings, WeatherData } from "./types";
+import { SolarEnergyDataItem, WeatherData } from "./types";
 
 export async function fetchSolarPanelData(): Promise<SolarEnergyDataItem[]> {
   // Simulate API delay
@@ -21,13 +21,6 @@ export async function fetchSolarPanelData(): Promise<SolarEnergyDataItem[]> {
     console.error("Error fetching solar data:", error);
     return [];
   }
-}
-
-export async function fetchSolarPanelSettings(): Promise<SolarEnergySettings> {
-  // Simulate API delay
-  await new Promise((resolve) => setTimeout(resolve, 300));
-
-  return { maxOutput: 5400, actualOutput: 4881 };
 }
 
 /**

@@ -18,11 +18,6 @@ export interface SolarEnergyDataItem {
   gridSupply: number; // kW / h
 }
 
-export interface SolarEnergySettings {
-  maxOutput: number; // W
-  actualOutput: number; // W
-}
-
 export interface WeatherData {
   isMock: boolean;
   temperature: number; // °C

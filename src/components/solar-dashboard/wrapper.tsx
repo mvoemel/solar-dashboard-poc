@@ -2,17 +2,9 @@
 
 import { Loader2Icon } from "lucide-react";
 import { SolarDashboard } from "./dashboard";
-import {
-  SolarEnergyDataItem,
-  SolarEnergySettings,
-  WeatherData,
-} from "@/lib/types";
+import { SolarEnergyDataItem, WeatherData } from "@/lib/types";
 import { useEffect, useMemo, useState } from "react";
-import {
-  fetchSolarPanelData,
-  fetchSolarPanelSettings,
-  fetchWeatherData,
-} from "@/lib/fetch";
+import { fetchSolarPanelData, fetchWeatherData } from "@/lib/fetch";
 import {
   calculateEnergyIndependence,
   calculateEnvironmentalImpact,
@@ -23,22 +15,18 @@ export function SolarDashboardWrapper() {
   const [solarData, setSolarData] = useState<SolarEnergyDataItem[] | null>(
     null
   );
-  const [solarSettings, setSolarSettings] =
-    useState<SolarEnergySettings | null>(null);
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [data, settings, weather] = await Promise.all([
+        const [data, weather] = await Promise.all([
           fetchSolarPanelData(),
-          fetchSolarPanelSettings(),
           fetchWeatherData(),
         ]);
 
         setSolarData(data);
-        setSolarSettings(settings);
         setWeatherData(weather);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -108,7 +96,7 @@ export function SolarDashboardWrapper() {
 
   const previousMonthImpact = calculateEnvironmentalImpact(previousMonth ?? []);
 
-  if (isLoading || !solarData || !solarSettings || !weatherData) {
+  if (isLoading || !solarData || !weatherData) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2Icon className="size-16 animate-spin" />
