@@ -2,7 +2,6 @@
 export const co2IntensityKgPerKWh = 0.128;
 
 // Energy cost: 0.17 CHF per kWh
-// Money saved = (Production used for consumption) * rate - (Grid supply) * rate + (Feed-in) * feed-in rate
 export const energyCostPerKWh = 0.17;
 export const feedInRatePerKWh = 0.08; // Typical Swiss feed-in rate (slightly lower than purchase rate)
 

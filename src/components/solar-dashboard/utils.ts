@@ -38,6 +38,7 @@ export const calculateEnvironmentalImpact = (data: SolarEnergyDataItem[]) => {
   const co2EmissionsAvoided = totals.totalProduction * co2IntensityKgPerKWh;
 
   // Money saved (CHF)
+  // Money saved = (Production used for consumption) * rate - (Grid supply) * rate + (Feed-in) * feed-in rate
   const energyNotFromGrid = totals.totalProduction - totals.totalFeedIn; // Energy used directly from solar
   const moneySavedFromDirectUse = energyNotFromGrid * energyCostPerKWh;
   const moneyEarnedFromFeedIn = totals.totalFeedIn * feedInRatePerKWh;
