@@ -36,12 +36,12 @@ export function NetEnergyBalanceCard({
               "text-red-500": netBalance < 0,
             })}
           >
-            {netBalance} kW/h
+            {new Intl.NumberFormat("de-CH").format(netBalance)} kW/h
           </span>
         </div>
         <p className="text-muted-foreground text-sm">
           {netBalance < 0
-            ? "Deficiency imported from grid"
+            ? "deficiency imported from grid"
             : "surplus exported to grid"}
         </p>
 

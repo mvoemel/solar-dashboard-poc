@@ -1,3 +1,8 @@
+import {
+  co2IntensityKgPerKWh,
+  energyCostPerKWh,
+  feedInRatePerKWh,
+} from "@/lib/constants";
 import { MonthlyData, SolarEnergyDataItem } from "@/lib/types";
 
 export const calculateEnergyIndependence = (
@@ -12,29 +17,11 @@ export const calculateEnergyIndependence = (
     { totalConsumption: 0, totalProduction: 0, totalGridSupply: 0 }
   );
 
-  // Method 1: Based on how much of consumption is met by production
-  // Independence = (Production used for consumption / Total consumption) * 100
-  // const productionUsedForConsumption = Math.min(
-  //   totals.totalProduction,
-  //   totals.totalConsumption
-  // );
-  // const independenceMethod1 =
-  //   totals.totalConsumption > 0
-  //     ? (productionUsedForConsumption / totals.totalConsumption) * 100
-  //     : 0;
-
-  // Method 2: Based on grid dependency
+  // Based on grid dependency
   // Independence = (1 - Grid Supply / Total consumption) * 100
-  const independenceMethod2 =
-    totals.totalConsumption > 0
-      ? Math.max(
-          0,
-          (1 - totals.totalGridSupply / totals.totalConsumption) * 100
-        )
-      : 0;
-
-  // Use Method 2 as it directly relates to grid dependency
-  return independenceMethod2;
+  return totals.totalConsumption > 0
+    ? Math.max(0, (1 - totals.totalGridSupply / totals.totalConsumption) * 100)
+    : 0;
 };
 
 export const calculateEnvironmentalImpact = (data: SolarEnergyDataItem[]) => {
@@ -48,16 +35,9 @@ export const calculateEnvironmentalImpact = (data: SolarEnergyDataItem[]) => {
   );
 
   // CO2 emissions avoided (kg)
-  // Swiss electricity grid CO2 intensity: ~0.128 kg CO2/kWh (2023 data)
-  const co2IntensityKgPerKWh = 0.128;
   const co2EmissionsAvoided = totals.totalProduction * co2IntensityKgPerKWh;
 
   // Money saved (CHF)
-  // Energy cost: 0.1 CHF per kWh (as specified)
-  // Money saved = (Production used for consumption) * rate - (Grid supply) * rate + (Feed-in) * feed-in rate
-  const energyCostPerKWh = 0.1;
-  const feedInRatePerKWh = 0.08; // Typical Swiss feed-in rate (slightly lower than purchase rate)
-
   const energyNotFromGrid = totals.totalProduction - totals.totalFeedIn; // Energy used directly from solar
   const moneySavedFromDirectUse = energyNotFromGrid * energyCostPerKWh;
   const moneyEarnedFromFeedIn = totals.totalFeedIn * feedInRatePerKWh;

@@ -1,3 +1,4 @@
+import { actualOutputPanels, theoreticalMaxPanels } from "./constants";
 import { parseSolarEnergyData } from "./parse";
 import { SolarEnergyDataItem, WeatherData } from "./types";
 
@@ -23,14 +24,11 @@ export async function fetchSolarPanelData(): Promise<SolarEnergyDataItem[]> {
   }
 }
 
-/**
- * Using Zurich coordinates as default location
- */
 export async function fetchWeatherData(
   lat: number = 47.3769,
   lon: number = 8.5417,
-  maxCapacity: number = 5440, // W - theoretical max from solar panels
-  actualOutput: number = 3788 // W (this would come from solar panel controller)
+  maxCapacity: number = theoreticalMaxPanels,
+  actualOutput: number = actualOutputPanels
 ): Promise<WeatherData> {
   try {
     const API_KEY = process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY;
@@ -38,7 +36,6 @@ export async function fetchWeatherData(
       throw Error("OpenWeatherMap API key not found, using mock data");
     }
 
-    // Fetch current weather data
     const currentWeatherUrl = `/api/weather/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`;
     const currentResponse = await fetch(currentWeatherUrl);
 
@@ -48,15 +45,13 @@ export async function fetchWeatherData(
 
     const currentData = await currentResponse.json();
 
-    // Extract weather data
     const temperature = Math.round(currentData.main.temp);
     const humidity = currentData.main.humidity;
-    const cloudCover = currentData.clouds.all / 100; // decimal → %
+    const cloudCover = currentData.clouds.all / 100; // % → [0 - 1]
     const visibility = currentData.visibility / 1000; // m → km
     const weather = currentData.weather[0].main; // e.g. "Clear", "Clouds", "Rain"
     const weatherIcon = currentData.weather[0].icon; // e.g. "01d", "02n", "10d"
 
-    // Calculate solar irradiance based on weather conditions
     // Standard test conditions: 1000 W/m² at 25°C
     let irradiance = 1000; // Start with peak solar irradiance
 
@@ -73,7 +68,7 @@ export async function fetchWeatherData(
       irradiance *= 0.25; // Heavy overcast
     }
 
-    // Adjust for time of day (simplified - better to use sun elevation angle)
+    // Adjust for time of day (simplified - better would be to use sun elevation angle)
     const hour = new Date().getHours();
     if (hour < 6 || hour > 18) {
       irradiance *= 0.1; // Night/dawn/dusk
@@ -87,7 +82,6 @@ export async function fetchWeatherData(
     const atmosphericFactor = Math.min(visibility / 10, 1); // Normalize visibility
     irradiance *= 0.9 + atmosphericFactor * 0.1;
 
-    // Calculate weather efficiency using the provided formula
     const baseIrradianceFactor = irradiance / 1000; // normalize to 1000 W/m² standard
     const temperatureAdjustment =
       temperature > 25 ? 1 - (temperature - 25) * 0.004 : 1; // -0.4% per degree above 25°C

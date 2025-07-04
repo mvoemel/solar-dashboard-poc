@@ -30,7 +30,7 @@ export interface WeatherData {
 }
 
 export interface MonthlyData {
-  month: string;
-  production: number;
-  expenditure: number;
+  month: string; // e.g. Aug 2024, ...
+  production: number; // kW / h
+  expenditure: number; // kW / h
 }

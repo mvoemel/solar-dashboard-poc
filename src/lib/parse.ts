@@ -20,10 +20,8 @@ export function parseSolarEnergyData(
     console.error("CSV parsing errors:", parseResult.errors);
   }
 
-  // Transform the data
   const transformedData = parseResult.data.map((row, index) => {
     try {
-      // Parse date and time
       const dateStr = row.tag?.toString().trim();
       const timeStr = row.zeit?.toString().trim();
 
@@ -32,15 +30,9 @@ export function parseSolarEnergyData(
         return null;
       }
 
-      //   console.log("Original dateStr:", dateStr);
-      //   console.log("Original timeStr:", timeStr);
-
       const [year, month, day] = dateStr.split("-");
       const [hours, minutes] = timeStr.split(":");
 
-      //   console.log("Parsed values:", { day, month, year, hours, minutes });
-
-      // Make sure all values are what you expect
       const date = new Date(
         parseInt(year),
         parseInt(month) - 1,
@@ -48,14 +40,11 @@ export function parseSolarEnergyData(
         parseInt(hours),
         parseInt(minutes)
       );
-      //   console.log(date);
 
-      // Extract energy values with fallback to 0
       const consumption = parseFloat(row.verbrauch_haushalt) || 0;
       const production = parseFloat(row.produktion_solar) || 0;
       const panelsOnline = parseInt(row.panels_online) || 0;
 
-      // Calculate feed-in and grid supply
       const feedIn = production > consumption ? production - consumption : 0;
       const gridSupply =
         consumption > production ? consumption - production : 0;
@@ -77,30 +66,3 @@ export function parseSolarEnergyData(
   // Filter out any null entries from failed parsing
   return transformedData.filter((item) => item !== null);
 }
-
-/**
- * Reads a CSV file and parses solar energy data
- */
-// export async function readSolarEnergyCSV(
-//   file: File
-// ): Promise<SolarEnergyDataItem[]> {
-//   return new Promise((resolve, reject) => {
-//     const reader = new FileReader();
-
-//     reader.onload = (event) => {
-//       try {
-//         const csvContent = event.target?.result;
-//         const parsedData = parseSolarEnergyData(csvContent as string);
-//         resolve(parsedData);
-//       } catch (error) {
-//         reject(error);
-//       }
-//     };
-
-//     reader.onerror = () => {
-//       reject(new Error("Failed to read file"));
-//     };
-
-//     reader.readAsText(file);
-//   });
-// }

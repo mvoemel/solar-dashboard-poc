@@ -5,12 +5,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { co2kgPerTree } from "@/lib/constants";
 
 type CO2EmissionsCardProps = {
   co2Avoided: number;
 };
-
-const KG_PER_TREE = 25; // TODO: export to constant.ts
 
 export function CO2EmissionsCard({ co2Avoided }: CO2EmissionsCardProps) {
   return (
@@ -24,7 +23,7 @@ export function CO2EmissionsCard({ co2Avoided }: CO2EmissionsCardProps) {
 
       <CardFooter className="flex items-center gap-2 text-sm">
         <p className="text-muted-foreground">
-          🌍 Equivalent to {Math.round(co2Avoided / KG_PER_TREE)} trees
+          🌍 Equivalent to {Math.round(co2Avoided / co2kgPerTree)} trees
         </p>
       </CardFooter>
     </Card>

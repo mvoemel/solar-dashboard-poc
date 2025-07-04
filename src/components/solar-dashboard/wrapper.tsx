@@ -3,13 +3,14 @@
 import { Loader2Icon } from "lucide-react";
 import { SolarDashboard } from "./dashboard";
 import { SolarEnergyDataItem, WeatherData } from "@/lib/types";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { fetchSolarPanelData, fetchWeatherData } from "@/lib/fetch";
 import {
   calculateEnergyIndependence,
   calculateEnvironmentalImpact,
   calculateMonthlyData,
 } from "./utils";
+import { panelsNextMaintenance, totalPanels } from "@/lib/constants";
 
 export function SolarDashboardWrapper() {
   const [solarData, setSolarData] = useState<SolarEnergyDataItem[] | null>(
@@ -41,61 +42,6 @@ export function SolarDashboardWrapper() {
     return () => clearInterval(interval);
   }, []);
 
-  const totals = useMemo(
-    () =>
-      solarData?.reduce(
-        (acc, item) => ({
-          totalProduction: acc.totalProduction + item.production,
-          totalExpenditure: acc.totalExpenditure + item.consumption,
-        }),
-        { totalProduction: 0, totalExpenditure: 0 }
-      ),
-    [solarData]
-  );
-
-  const lastSolarDataField = useMemo(
-    () => solarData?.at(-1) || null,
-    [solarData]
-  );
-
-  const allTimeIndependence = useMemo(
-    () => calculateEnergyIndependence(solarData ?? []),
-    [solarData]
-  );
-
-  const allTimeImpact = useMemo(
-    () => calculateEnvironmentalImpact(solarData ?? []),
-    [solarData]
-  );
-
-  const last30Days = useMemo(
-    () =>
-      solarData?.filter((item) => {
-        const now = new Date();
-        const thirtyDaysAgo = new Date(
-          now.getTime() - 30 * 24 * 60 * 60 * 1000
-        );
-        return item.date >= thirtyDaysAgo;
-      }),
-    [solarData]
-  );
-  const monthlyImpact = calculateEnvironmentalImpact(last30Days ?? []);
-
-  // Calculate previous month for comparison
-  const now = new Date();
-  const previousMonthStart = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000); // 60 days ago
-  const previousMonthEnd = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000); // 30 days ago
-
-  const previousMonth = useMemo(
-    () =>
-      solarData?.filter((item) => {
-        return item.date >= previousMonthStart && item.date < previousMonthEnd;
-      }),
-    [solarData]
-  );
-
-  const previousMonthImpact = calculateEnvironmentalImpact(previousMonth ?? []);
-
   if (isLoading || !solarData || !weatherData) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -104,19 +50,47 @@ export function SolarDashboardWrapper() {
     );
   }
 
+  const totals = solarData?.reduce(
+    (acc, item) => ({
+      totalProduction: acc.totalProduction + item.production,
+      totalExpenditure: acc.totalExpenditure + item.consumption,
+    }),
+    { totalProduction: 0, totalExpenditure: 0 }
+  );
+
+  const lastSolarDataField = solarData.at(-1);
+
+  const allTimeIndependence = calculateEnergyIndependence(solarData);
+  const allTimeImpact = calculateEnvironmentalImpact(solarData);
+
+  const now = new Date();
+  const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+  const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000);
+
+  const lastMonthData = solarData?.filter((item) => {
+    return item.date >= thirtyDaysAgo;
+  });
+  const previousMonthData = solarData?.filter((item) => {
+    return item.date >= sixtyDaysAgo && item.date < thirtyDaysAgo;
+  });
+
+  const monthlyImpact = calculateEnvironmentalImpact(lastMonthData);
+  const previousMonthImpact = calculateEnvironmentalImpact(previousMonthData);
+  const monthlyProductionConsumption = calculateMonthlyData(solarData);
+
   return (
     <SolarDashboard
       firstRowData={{
         allTimeIndependence,
         latestPanelsOnline: lastSolarDataField?.panelsOnline ?? 0,
-        totalPanels: 16,
-        nextMaintenancePanels: new Date("2025-09-10"),
+        totalPanels: totalPanels,
+        nextMaintenancePanels: panelsNextMaintenance,
         allTimeCO2EmissionsAvoided: allTimeImpact.co2EmissionsAvoided,
         thisMonthMoneySaved: monthlyImpact.moneySaved,
         previousMonthMoneySaved: previousMonthImpact.moneySaved,
       }}
       secondRowData={{
-        monthlyProductionConsumption: calculateMonthlyData(solarData),
+        monthlyProductionConsumption,
         weather: weatherData,
         totalExpenditure: totals?.totalExpenditure ?? 0,
         totalProduction: totals?.totalProduction ?? 0,
