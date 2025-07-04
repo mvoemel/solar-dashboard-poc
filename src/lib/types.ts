@@ -18,6 +18,13 @@ export interface SolarEnergyDataItem {
   gridSupply: number; // kW / h
 }
 
+export interface DailyAggregatedData {
+  [dateKey: string]: Pick<
+    SolarEnergyDataItem,
+    "date" | "consumption" | "production"
+  >;
+}
+
 export interface WeatherData {
   isMock: boolean;
   temperature: number; // °C

@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { cn } from "@/lib/utils";
-import { SolarEnergyDataItem } from "@/lib/types";
+import { DailyAggregatedData, SolarEnergyDataItem } from "@/lib/types";
 
 const chartConfig = {
   signatures: {
@@ -63,16 +63,40 @@ export function ProductionVsConsumptionCard({
   const filteredData = data.filter((item) => {
     const date = new Date(item.date);
     const referenceDate = new Date("2025-06-30");
-    let daysToSubtract = 30;
-    if (timeRange === "7d") {
+    let daysToSubtract = 365;
+    if (timeRange === "30d") {
+      daysToSubtract = 30;
+    } else if (timeRange === "7d") {
       daysToSubtract = 7;
     } else if (timeRange === "1d") {
       daysToSubtract = 1;
     }
     const startDate = new Date(referenceDate);
-    startDate.setDate(startDate.getDate() - daysToSubtract);
+    startDate.setDate(startDate.getDate() - daysToSubtract + 1);
     return date >= startDate;
   });
+
+  const possiblyAggregatedData =
+    timeRange === "365d" || timeRange === "30d"
+      ? Object.values(
+          filteredData.reduce((acc: DailyAggregatedData, item) => {
+            const dateKey = item.date.toISOString().split("T")[0]; // Get YYYY-MM-DD format
+
+            if (!acc[dateKey]) {
+              acc[dateKey] = {
+                date: new Date(dateKey),
+                consumption: 0,
+                production: 0,
+              };
+            }
+
+            acc[dateKey].consumption += item.consumption;
+            acc[dateKey].production += item.production;
+
+            return acc;
+          }, {})
+        )
+      : filteredData;
 
   return (
     <Card className={cn(className)}>
@@ -89,6 +113,9 @@ export function ProductionVsConsumptionCard({
             variant="outline"
             className="md:flex hidden"
           >
+            <ToggleGroupItem value="365d" className="h-8 px-2.5">
+              Last year
+            </ToggleGroupItem>
             <ToggleGroupItem value="30d" className="h-8 px-2.5">
               Last month
             </ToggleGroupItem>
@@ -107,6 +134,9 @@ export function ProductionVsConsumptionCard({
               <SelectValue placeholder="Last 3 months" />
             </SelectTrigger>
             <SelectContent className="rounded-xl">
+              <SelectItem value="365d" className="rounded-lg">
+                Last year
+              </SelectItem>
               <SelectItem value="30d" className="rounded-lg">
                 Last month
               </SelectItem>
@@ -128,7 +158,7 @@ export function ProductionVsConsumptionCard({
         >
           <LineChart
             accessibilityLayer
-            data={filteredData}
+            data={possiblyAggregatedData}
             margin={{
               left: 12,
               right: 12,
@@ -143,10 +173,21 @@ export function ProductionVsConsumptionCard({
               minTickGap={32}
               tickFormatter={(value) => {
                 const date = new Date(value);
-                return date.toLocaleDateString("de-CH", {
-                  month: "short",
-                  day: "numeric",
-                });
+                return timeRange === "365d"
+                  ? date.toLocaleString("de-CH", {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                    })
+                  : timeRange === "1d"
+                  ? date.toLocaleString("de-CH", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })
+                  : date.toLocaleDateString("de-CH", {
+                      month: "short",
+                      day: "numeric",
+                    });
               }}
             />
             <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
